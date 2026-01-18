@@ -1,0 +1,144 @@
+(function() {
+    'use strict';
+
+    const STORAGE_KEY = 'full_site_bg';
+
+    const CSS = `
+        body {
+            background-attachment: fixed !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        #app, .svelte-app-wrapper, .layout, .page-container, .profile-header,
+        .sidebar-top, .right-sidebar, .right-sidebar__footer,
+        .profile-bio, .profile-info__row, .profile-meta, .profile-stats {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .sidebar-top {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            padding: 10px 0 !important;
+        }
+
+        .sidebar-logo, .sidebar-pill, .profile-info, main,
+        .post-container, .feed-layout, .card, .settings-modal__content {
+            background-color: #ffffff !important;
+            border: 1px solid rgba(0,0,0,0.08) !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+        }
+
+        .sidebar-logo {
+            border-radius: 50% !important;
+            width: 46px !important;
+            height: 46px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin-bottom: 15px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .sidebar-pill { border-radius: 24px !important; padding: 6px !important; }
+        .profile-info { border-radius: 16px !important; padding: 20px !important; margin-bottom: 15px !important; }
+        main, .post-container, .feed-layout, .card { border-radius: 12px !important; }
+
+        .itd-modern-counter {
+            background: #f9f9f9 !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            backdrop-filter: none !important;
+        }
+
+        #bg-settings-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(3px); z-index: 999999; display: none;
+        }
+        #bg-settings-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 16px;
+            z-index: 1000000; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            font-family: sans-serif; width: 240px; display: none;
+            flex-direction: column; gap: 10px;
+        }
+        .settings-btn-itd {
+            background: #f5f5f5; border: none; padding: 12px; border-radius: 10px;
+            cursor: pointer; font-weight: bold; color: #111; text-align: center; font-size: 13px;
+            transition: background 0.2s;
+        }
+        .settings-btn-itd:hover { background: #eeeeee; }
+        .danger-itd { color: #ff3b30; }
+    `;
+
+    const applyBackground = (img) => {
+        document.body.style.backgroundImage = img ? `url(${img})` : '';
+        img ? localStorage.setItem(STORAGE_KEY, img) : localStorage.removeItem(STORAGE_KEY);
+    };
+
+    const styleEl = document.createElement('style');
+    styleEl.textContent = CSS;
+    document.head.appendChild(styleEl);
+
+    applyBackground(localStorage.getItem(STORAGE_KEY));
+
+    const overlay = document.createElement('div');
+    overlay.id = 'bg-settings-overlay';
+
+    const modal = document.createElement('div');
+    modal.id = 'bg-settings-modal';
+    modal.innerHTML = `
+        <div style="font-weight:bold; font-size: 17px; margin-bottom: 5px; color: #000; text-align: center;">Оформление</div>
+        <input type="file" id="bg-file-input" style="display:none" accept="image/*">
+        <button class="settings-btn-itd" id="bg-upload-act">Сменить фон</button>
+        <button class="settings-btn-itd danger-itd" id="bg-remove-act">Удалить фон</button>
+        <button class="settings-btn-itd" id="bg-close-act" style="background: #007aff; color: white;">Закрыть</button>
+    `;
+
+    document.body.append(overlay, modal);
+
+    const toggleModal = (show) => {
+        const state = show ? 'flex' : 'none';
+        modal.style.display = state;
+        overlay.style.display = show ? 'block' : 'none';
+    };
+
+    const injectButton = () => {
+        const nav = document.querySelector('.sidebar-nav');
+        if (!nav || document.getElementById('bg-settings-trigger')) return;
+
+        const btn = document.createElement('a');
+        btn.id = 'bg-settings-trigger';
+        btn.className = 'sidebar-nav-item svelte-13vg9xt';
+        btn.style.cursor = 'pointer';
+        btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="24" height="24"><path fill="currentColor" d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path><path fill="currentColor" fill-rule="evenodd" d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" clip-rule="evenodd"></path></svg>`;
+
+        btn.onclick = (e) => { e.preventDefault(); toggleModal(true); };
+        nav.appendChild(btn);
+    };
+
+    document.getElementById('bg-upload-act').onclick = () => document.getElementById('bg-file-input').click();
+    document.getElementById('bg-close-act').onclick = () => toggleModal(false);
+    overlay.onclick = () => toggleModal(false);
+
+    document.getElementById('bg-file-input').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => applyBackground(ev.target.result);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    document.getElementById('bg-remove-act').onclick = () => {
+        applyBackground(null);
+        toggleModal(false);
+    };
+
+    const observer = new MutationObserver(() => injectButton());
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    injectButton();
+
+})();

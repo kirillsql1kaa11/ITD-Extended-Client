@@ -1,0 +1,112 @@
+(function() {
+    'use strict';
+
+    const STATE = {
+        postsCount: 0,
+        username: null,
+        selectors: {
+            stats: '.profile-stats.svelte-p40znu',
+            posts: '.post-container[data-post-id]'
+        }
+    };
+
+    const log = (msg, data = '') => console.log(`%c[ITD Modern]%c ${msg}`, 'color: #2196F3; font-weight: bold;', 'color: inherit;', data);
+
+    const proxyFetch = () => {
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const url = args[0];
+            const response = await originalFetch.apply(window, args);
+
+            if (typeof url === 'string' && url.includes('/api/users/') && !url.includes('?') && !url.includes('/posts')) {
+                const cloned = response.clone();
+                cloned.json().then(data => {
+                    log('Данные получены из API');
+                    // Гибкий поиск данных в объекте [cite: 179, 180, 181, 182]
+                    STATE.postsCount = data?.postsCount ?? data?.user?.postsCount ?? data?.data?.postsCount ?? 0;
+
+                    const match = url.match(/\/api\/users\/([a-zA-Z0-9_]+)/);
+                    if (match) STATE.username = match[1];
+
+                    renderCounter();
+                }).catch(err => log('Ошибка JSON', err));
+            }
+            return response;
+        };
+    };
+
+    function renderCounter() {
+        const statsContainer = document.querySelector(STATE.selectors.stats);
+        if (!statsContainer) return;
+
+        statsContainer.querySelector('.itd-modern-counter')?.remove();
+
+        let displayCount = STATE.postsCount;
+        if (!displayCount) {
+            const posts = document.querySelectorAll(STATE.selectors.posts);
+            displayCount = posts.length;
+            log('Счет постов на странице:', displayCount);
+        }
+
+        const counterBtn = document.createElement('button');
+        counterBtn.className = 'profile-stats__item svelte-p40znu itd-modern-counter';
+
+        counterBtn.style.cssText = `
+            margin-left: 12px;
+            padding: 4px 12px;
+            cursor: pointer;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        `;
+
+        counterBtn.innerHTML = `
+            <span style="font-weight: 700; font-size: 16px; color: var(--text-primary);">${displayCount}</span>
+            <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); opacity: 0.8;">Посты</span>
+        `;
+
+        counterBtn.onmouseenter = () => counterBtn.style.backgroundColor = 'rgba(0,0,0,0.03)';
+        counterBtn.onmouseleave = () => counterBtn.style.backgroundColor = 'rgba(255,255,255,0.8)';
+
+        counterBtn.onclick = (e) => {
+            e.preventDefault();
+            document.querySelector(STATE.selectors.posts)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        statsContainer.appendChild(counterBtn);
+    }
+
+    function init() {
+        log('Инициализация...');
+        proxyFetch();
+
+        const observer = new MutationObserver((mutations) => {
+            if (document.querySelector(STATE.selectors.stats) && !document.querySelector('.itd-modern-counter')) {
+                renderCounter();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        let lastUrl = location.href;
+        setInterval(() => {
+            if (location.href !== lastUrl) {
+                lastUrl = location.href;
+                STATE.postsCount = 0;
+                STATE.username = null;
+                setTimeout(renderCounter, 800);
+            }
+        }, 500);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

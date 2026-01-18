@@ -1,0 +1,16 @@
+(function() {
+    'use strict';
+    const stopWords = ['месяц', 'год', 'недел', 'день', 'дн'];
+    const clean = () => {
+        if (location.pathname !== '/feed') return;
+        document.querySelectorAll('.post-container:not([data-f])').forEach(post => {
+            const time = post.querySelector('.post-time');
+            if (time) {
+                if (stopWords.some(word => time.textContent.toLowerCase().includes(word))) post.style.display = 'none';
+                post.setAttribute('data-f', '1');
+            }
+        });
+    };
+    new MutationObserver(clean).observe(document.body, {childList: true, subtree: true});
+    clean();
+})();
