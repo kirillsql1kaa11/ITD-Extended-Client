@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.3
-// @version      1.3
-// @description  Исправлены некоторые скрипты
+// @name         ITD Extended Client v1.3.1
+// @version      1.3.1
+// @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
 // @grant        GM_addStyle
@@ -227,5 +227,6 @@
 
     Client.init();
 })();
+
 
 
