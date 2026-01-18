@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.4.1
-// @version      1.4.1
+// @name         ITD Extended Client v1.4.2
+// @version      1.4.2
 // @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -9,6 +9,7 @@
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @connect      gist.githubusercontent.com
+// @connect      raw.githubusercontent.com
 // @run-at       document-end
 // @namespace    https://github.com/kirillsql1kaa11/ITD-Extended-Client
 // @updateURL    https://github.com/kirillsql1kaa11/ITD-Extended-Client/raw/refs/heads/main/ITDEXT.user.js
@@ -225,6 +226,7 @@
 
     Client.init();
 })();
+
 
 
 
