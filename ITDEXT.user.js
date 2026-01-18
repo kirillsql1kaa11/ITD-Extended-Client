@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.3.1
-// @version      1.3.1
+// @name         ITD Extended Client v1.4
+// @version      1.4
 // @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -24,35 +24,35 @@
             name: 'ITD Свежак',
             auth: '@l1ka11',
             desc: 'Автоматически скрывает посты, опубликованные более 24 часов назад.',
-            url: 'https://gist.githubusercontent.com/kirillsql1kaa11/80e7e7045fae5849b240ee582c0f4a92/raw/4b9026e1b7486d37a84a5340bde3b3c68509e8e3/gistfile1.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdfresh.txt'
         },
         {
             id: 'zoom',
             name: 'ITD Приближение',
             auth: '@l1kaa11',
             desc: 'Позволяет увеличивать изображения при наведении и прокрутке колесиком.',
-            url: 'https://gist.githubusercontent.com/kirillsql1kaa11/ce4debe1bf3283cfb7fba91a3d13cad3/raw/fc56903d4b54b184c6cb738478036add681cbdbd/gistfile1.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdscrollphoto.txt'
         },
         {
             id: 'arts',
             name: 'ITD Арты',
             auth: '@l1kaa11',
             desc: 'Улучшенный интерфейс для раздела рисования и просмотра артов.',
-            url: 'https://gist.githubusercontent.com/kirillsql1kaa11/caeb18ee08fe5a85646c8216ffcbd356/raw/cbd6e35d42f245c56afe3b18ae30e896a63afa5d/gistfile1.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/ITDartex.txt'
         },
         {
             id: 'counter',
             name: 'ITD Счетчик',
             auth: '@l1kaa11',
             desc: 'Отображает точное количество загруженных постов в текущей ленте.',
-            url: 'https://gist.githubusercontent.com/kirillsql1kaa11/31d7f5ce1aef566e07ffa0d0405f6b2e/raw/ca6294447cbdde031d49c9518814e96ad7a1fac7/gistfile1.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdpostcounter.txt'
         },
         {
             id: 'backgrounds',
             name: 'ITD Фоны',
             auth: '@l1kaa11',
             desc: 'Применяет кастомные задние планы и анимированные GIF-фоны.',
-            url: 'https://gist.githubusercontent.com/kirillsql1kaa11/bad65ddb450a864238c83f5a26bd4b20/raw/43f92629e8b07be891186bd6af0bc17eeb99495f/gistfile1.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/ITDbackground.txt'
         },
         {
             id: 'profilesear',
@@ -155,7 +155,7 @@
             if (confirm('Вы уверены, что хотите удалить этот скрипт?')) {
                 customModules = customModules.filter(x => x.id !== id);
                 GM_setValue('custom_modules_v2', customModules);
-                this.renderModules(); // Перерисовываем меню
+                this.renderModules(); 
             }
         },
 
@@ -182,7 +182,6 @@
                 </div>
             `).join('');
 
-            // Привязка кнопок активации
             container.querySelectorAll('.tgl-btn').forEach(b => {
                 b.onclick = () => {
                     const id = b.dataset.id;
@@ -197,7 +196,6 @@
                 };
             });
 
-            // Привязка кнопок удаления (вместо window.deleteModule)
             container.querySelectorAll('.del-script-btn').forEach(b => {
                 b.onclick = () => this.deleteModule(b.dataset.id);
             });
@@ -227,6 +225,7 @@
 
     Client.init();
 })();
+
 
 
 
