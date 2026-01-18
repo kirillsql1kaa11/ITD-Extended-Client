@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ITD Extended Client
-// @version      1.4.5
-// @description  Исправлены названия и описания некоторых скриптов
+// @version      1.4.6
+// @description  Убран скрипт ИТД.Арт
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
 // @grant        GM_addStyle
@@ -33,13 +33,6 @@
             auth: '@l1kaa11',
             desc: 'Позволяет увеличивать изображения при нажатии и прокрутке колесиком.',
             url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdscrollphoto.txt'
-        },
-        {
-            id: 'arts',
-            name: 'ITD Арты',
-            auth: '@l1kaa11',
-            desc: 'Улучшенный интерфейс для раздела рисования!',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDartex.txt'
         },
         {
             id: 'counter',
@@ -226,6 +219,7 @@
 
     Client.init();
 })();
+
 
 
 
