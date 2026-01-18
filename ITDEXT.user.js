@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.4
-// @version      1.4
+// @name         ITD Extended Client v1.4.1
+// @version      1.4.1
 // @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -24,35 +24,35 @@
             name: 'ITD Свежак',
             auth: '@l1ka11',
             desc: 'Автоматически скрывает посты, опубликованные более 24 часов назад.',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdfresh.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdfresh.txt'
         },
         {
             id: 'zoom',
             name: 'ITD Приближение',
             auth: '@l1kaa11',
             desc: 'Позволяет увеличивать изображения при наведении и прокрутке колесиком.',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdscrollphoto.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdscrollphoto.txt'
         },
         {
             id: 'arts',
             name: 'ITD Арты',
             auth: '@l1kaa11',
             desc: 'Улучшенный интерфейс для раздела рисования и просмотра артов.',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/ITDartex.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDartex.txt'
         },
         {
             id: 'counter',
             name: 'ITD Счетчик',
             auth: '@l1kaa11',
             desc: 'Отображает точное количество загруженных постов в текущей ленте.',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/itdpostcounter.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdpostcounter.txt'
         },
         {
             id: 'backgrounds',
             name: 'ITD Фоны',
             auth: '@l1kaa11',
             desc: 'Применяет кастомные задние планы и анимированные GIF-фоны.',
-            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/ITDbackground.txt'
+            url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDbackground.txt'
         },
         {
             id: 'profilesear',
@@ -124,7 +124,7 @@
             gui.id = 'itd-gui';
             gui.innerHTML = `
                 <div class="gui-head">
-                    <div><h2 style="margin:0;">ITD Extended Client betaV1.3 </h2><small style="color:#007aff">Список модов</small></div>
+                    <div><h2 style="margin:0;">ITD Extended Client betaV1.4 </h2><small style="color:#007aff">Список модов</small></div>
                     <span id="itd-close" style="cursor:pointer; font-size:28px;">✕</span>
                 </div>
                 <div class="gui-body">
@@ -225,6 +225,7 @@
 
     Client.init();
 })();
+
 
 
 
