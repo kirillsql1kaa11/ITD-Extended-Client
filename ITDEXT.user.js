@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.4.2
-// @version      1.4.2
+// @name         ITD Extended Client v1.4.3
+// @version      1.4.3
 // @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -60,14 +60,14 @@
             name: 'Profile Search',
             auth: '@dmitrii_gr (#дым)',
             desc: 'Добавляет возможность поиска в профиле',
-            url: 'https://gist.githubusercontent.com/Dima-programmer/ca1d842c672ed355d036cf97b91526b6/raw/9b0abb1dd557951ddd354707eecc240d56bfe4d7/ProfileSearch.txt'
+            url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/Profile%20Search.txt'
         },
         {
             id: 'suggestion',
             name: 'Скрыть "Кого читать"',
             auth: '@dmitrii_gr (#дым)',
             desc: 'Убирает плашку "Кого читать"',
-            url: 'https://gist.githubusercontent.com/Dima-programmer/76854a744e67fbfbcf29669d37693eea/raw/09269fd155693e4ea1eb81e94fda11ff3ae43b55/SuggestionsHide.txt'
+            url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/HideBars.txt'
         }
     ];
 
@@ -226,6 +226,7 @@
 
     Client.init();
 })();
+
 
 
 
