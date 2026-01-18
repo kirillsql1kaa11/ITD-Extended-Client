@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         ITD Extended Client v1.4.3
-// @version      1.4.3
+// @name         ITD Extended Client v1.4.4
+// @version      1.4.4
 // @description  Исправлены некоторые скрипты итд
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -64,9 +64,9 @@
         },
         {
             id: 'suggestion',
-            name: 'Скрыть "Кого читать"',
+            name: 'Скрыть не нужное',
             auth: '@dmitrii_gr (#дым)',
-            desc: 'Убирает плашку "Кого читать"',
+            desc: 'Скрывает "Кого читать" и "Топ кланов"',
             url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/HideBars.txt'
         }
     ];
@@ -226,6 +226,7 @@
 
     Client.init();
 })();
+
 
 
 
