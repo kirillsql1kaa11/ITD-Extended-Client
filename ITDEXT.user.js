@@ -10,6 +10,9 @@
 // @grant        GM_xmlhttpRequest
 // @connect      gist.githubusercontent.com
 // @run-at       document-end
+// @namespace    ссылка на репозиторий с кодом
+// @updateURL    raw ссылка на файл с кодом
+// @downloadURL  raw ссылка на файл с кодом
 // ==/UserScript==
 
 (function() {
@@ -224,3 +227,4 @@
 
     Client.init();
 })();
+
