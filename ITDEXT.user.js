@@ -10,9 +10,9 @@
 // @grant        GM_xmlhttpRequest
 // @connect      gist.githubusercontent.com
 // @run-at       document-end
-// @namespace    ссылка на репозиторий с кодом
-// @updateURL    raw ссылка на файл с кодом
-// @downloadURL  raw ссылка на файл с кодом
+// @namespace    https://github.com/kirillsql1kaa11/ITD-Extended-Client
+// @updateURL    https://github.com/kirillsql1kaa11/ITD-Extended-Client/raw/refs/heads/main/ITDEXT.user.js
+// @downloadURL  https://github.com/kirillsql1kaa11/ITD-Extended-Client/raw/refs/heads/main/ITDEXT.user.js
 // ==/UserScript==
 
 (function() {
@@ -227,4 +227,5 @@
 
     Client.init();
 })();
+
 
