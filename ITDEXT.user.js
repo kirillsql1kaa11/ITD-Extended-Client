@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITD Extended Client
-// @version      1.4.9
+// @version      1.5
 // @description  Добавлен новый скрипт
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -25,7 +25,8 @@
         { id: 'backgrounds', name: 'ITD Фоны', auth: '@l1kaa11', desc: 'Применяет кастомные задние планы и анимированные GIF-фоны.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDbackground.txt' },
         { id: 'profilesear', name: 'Profile Search', auth: '@dmitrii_gr (#дым)', desc: 'Добавляет возможность поиска в профиле', url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/Profile%20Search.txt' },
         { id: 'suggestion', name: 'Скрыть не нужное', auth: '@dmitrii_gr (#дым)', desc: 'Скрывает "Кого читать" и "Топ кланов"', url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/HideBars.txt' },
-        { id: 'bannerprofile', name: 'ITD Custom Banner', auth: '@obsosochka', desc: 'Добавляет кнопку для быстрой установки любого фото или GIF на баннер профиля в обход стандартных ограничений."', url: 'https://raw.githubusercontent.com/mafiahash/ITD/main/custom_banner.js' }
+        { id: 'bannerprofile', name: 'ITD Custom Banner', auth: '@obsosochka', desc: 'Добавляет кнопку для быстрой установки любого фото или GIF на баннер профиля в обход стандартных ограничений."', url: 'https://raw.githubusercontent.com/mafiahash/ITD/main/custom_banner.js' },
+        { id: 'regdate', name: 'Exact Registration Date', auth: '@obsosochka', desc: 'Скрипт показывает точное время и дату регистрации любого пользователя вместо стандартного «месяц и год».', url: 'https://raw.githubusercontent.com/mafiahash/ITD/main/registration_date.js' }
     ];
 
     let customModules = GM_getValue('custom_modules_v2', []);
@@ -87,7 +88,7 @@
             gui.id = 'itd-gui';
             gui.innerHTML = `
                 <div class="gui-head">
-                    <div><h2 style="margin:0;">ITD Extended Client 1.4.9</h2><small style="color:#007aff">Менеджер расширений</small></div>
+                    <div><h2 style="margin:0;">ITD Extended Client 1.5</h2><small style="color:#007aff">Менеджер расширений</small></div>
                     <span id="itd-close" style="cursor:pointer; font-size:28px;">✕</span>
                 </div>
                 <div class="gui-body">
@@ -203,5 +204,6 @@
 
     Client.init();
 })();
+
 
 
