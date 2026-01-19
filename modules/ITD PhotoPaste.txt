@@ -1,0 +1,43 @@
+(function() {
+    'use strict';
+
+    function initPasteHandler() {
+
+        const textarea = document.querySelector('.wall-post-form__textarea');
+        if (!textarea || textarea.dataset.pasteAttached) return;
+
+        textarea.dataset.pasteAttached = "true";
+
+        textarea.addEventListener('paste', async (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+
+                    const blob = item.getAsFile();
+
+                    const fileInput = document.querySelector('.wall-post-form__toolbar input[type="file"]') 
+                                   || document.querySelector('input[type="file"]');
+
+                    if (fileInput) {
+
+
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(blob);
+                        fileInput.files = dataTransfer.files;
+
+                        fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    } 
+                }
+            }
+        });
+    }
+
+    const observer = new MutationObserver(() => {
+        initPasteHandler();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    initPasteHandler();
+})();
