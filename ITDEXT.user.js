@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITD Extended Client
-// @version      1.6.1
+// @version      1.6.2
 // @description  Добавлен новый скрипт
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -21,6 +21,7 @@
         { id: 'itdprofile', name: 'ITD Profile', auth: '@l1kaa11', desc: 'Клик по @нику копирует ник, ссылки в био становятся кликабельными.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDprofile.txt' },
         { id: 'zoom', name: 'ITD Приближение', auth: '@l1kaa11', desc: 'Позволяет увеличивать изображения при нажатии и прокрутке колесиком.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdscrollphoto.txt' },
         { id: 'counter', name: 'ITD Счетчик', auth: '@l1kaa11', desc: 'Отображает точное количество загруженных постов в текущей ленте.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdpostcounter.txt' },
+        { id: 'pins', name: 'Pinned Profiles', auth: '@l1kaa11', desc: 'Закреп профилей, быстрый доступ, заметки, онлайн/lastSeen, сортировка.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itd_pins.txt' },
         { id: 'backgrounds', name: 'ITD Фоны', auth: '@l1kaa11', desc: 'Применяет кастомные задние планы и анимированные GIF-фоны.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDbackground.txt' },
         { id: 'profilesear', name: 'Profile Search', auth: '@dmitrii_gr (#дым)', desc: 'Добавляет возможность поиска в профиле', url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/Profile%20Search.txt' },
         { id: 'suggestion', name: 'Скрыть не нужное', auth: '@dmitrii_gr (#дым)', desc: 'Скрывает "Кого читать" и "Топ кланов"', url: 'https://raw.githubusercontent.com/Dima-programmer/ITD_EXTENDED_MY_SCRIPTS/main/HideBars.txt' },
@@ -203,6 +204,7 @@
 
     Client.init();
 })();
+
 
 
 
