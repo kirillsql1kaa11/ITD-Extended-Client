@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITD Extended Client
-// @version      1.6
+// @version      1.6.1
 // @description  Добавлен новый скрипт
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -203,6 +203,7 @@
 
     Client.init();
 })();
+
 
 
 
