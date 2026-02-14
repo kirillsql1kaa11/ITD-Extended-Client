@@ -2,14 +2,14 @@
   "use strict";
 
   const LS_KEY = "itd_pinned_profiles_v1";
-  const FETCH_INTERVAL = 60_000; // обновление статусов раз в минуту
+  const FETCH_INTERVAL = 60_000;
   const PANEL_ID = "itd-pins-panel";
   const BTN_ID = "itd-pins-sidebar-btn";
   const PIN_BTN_CLASS = "itd-pin-btn";
 
   const SEL = {
     sidebarNav: ".sidebar-nav",
-    username: "p.profile-bio__username", // "@l1kaa11"
+    username: "p.profile-bio__username", 
   };
 
   function loadStore() {
@@ -22,11 +22,6 @@
   function saveStore(store) {
     localStorage.setItem(LS_KEY, JSON.stringify(store));
   }
-
-  // store format:
-  // {
-  //   "l1kaa11": { note:"dev", pinnedAt: ts, lastVisitedAt: ts, visits: 3, cache:{ online:true, lastSeen:null, updatedAt: ts } }
-  // }
 
   const now = () => Date.now();
 
@@ -264,11 +259,8 @@
   }
 
   function statusClassFromCache(cache) {
-    // online -> green
     if (cache?.online === true) return "online";
 
-    // if lastSeen exists and updated recently -> yellow "recent"
-    // (в твоих данных lastSeen бывает null, но на всякий)
     if (cache?.lastSeen) return "recent";
 
     if (cache?.online === false) return "offline";
@@ -344,8 +336,8 @@
 
       el.addEventListener("click", (e) => {
         const act = e.target?.closest?.("[data-act]")?.getAttribute("data-act");
-        if (act) return; // actions handled below
-        // goto profile
+        if (act) return; 
+
         location.href = `/${u}`;
       });
 
@@ -450,7 +442,7 @@
           const online = typeof data?.online === "boolean" ? data.online : null;
           const lastSeen = data?.lastSeen ?? null;
 
-          const st = loadStore(); // на случай изменения во время цикла
+          const st = loadStore();
           if (!st[u]) continue;
           st[u].cache = {
             online,
@@ -459,7 +451,7 @@
           };
           saveStore(st);
         } catch {
-          // игнорим отдельные ошибки
+
         }
       }
 
@@ -497,7 +489,7 @@
   const schedule = () => {
     clearTimeout(debounce);
     debounce = setTimeout(() => {
-      // mark visits if current profile is pinned
+
       const u = getUsernameFromPath();
       const store = loadStore();
       if (u && store[u]) touchVisit(u);
