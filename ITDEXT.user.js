@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         ITD Extended Client
-// @version      1.5
+// @version      1.6
 // @description  Добавлен новый скрипт
 // @author       l1kaa11
 // @match        https://xn--d1ah4a.com/*
@@ -18,8 +18,7 @@
     'use strict';
 
     const defaultModules = [
-        { id: 'fresh', name: 'ITD Свежак', auth: '@l1kaа11', desc: 'Автоматически скрывает посты, опубликованные более 24 часов назад.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdfresh.txt' },
-        { id: 'photovstavka', name: 'ITD Вставщик Фото', auth: '@l1kaа11', desc: 'Добавляет возможность вставлять картинки в пост на ctrl+v, а не загружать их', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/refs/heads/main/modules/ITD%20PhotoPaste.txt' },
+        { id: 'itdprofile', name: 'ITD Profile', auth: '@l1kaa11', desc: 'Клик по @нику копирует ник, ссылки в био становятся кликабельными.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDprofile.txt' },
         { id: 'zoom', name: 'ITD Приближение', auth: '@l1kaa11', desc: 'Позволяет увеличивать изображения при нажатии и прокрутке колесиком.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdscrollphoto.txt' },
         { id: 'counter', name: 'ITD Счетчик', auth: '@l1kaa11', desc: 'Отображает точное количество загруженных постов в текущей ленте.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/itdpostcounter.txt' },
         { id: 'backgrounds', name: 'ITD Фоны', auth: '@l1kaa11', desc: 'Применяет кастомные задние планы и анимированные GIF-фоны.', url: 'https://raw.githubusercontent.com/kirillsql1kaa11/ITD-Extended-Client/main/modules/ITDbackground.txt' },
@@ -88,7 +87,7 @@
             gui.id = 'itd-gui';
             gui.innerHTML = `
                 <div class="gui-head">
-                    <div><h2 style="margin:0;">ITD Extended Client 1.5</h2><small style="color:#007aff">Менеджер расширений</small></div>
+                    <div><h2 style="margin:0;">ITD Extended Client 1.6</h2><small style="color:#007aff">Менеджер расширений</small></div>
                     <span id="itd-close" style="cursor:pointer; font-size:28px;">✕</span>
                 </div>
                 <div class="gui-body">
@@ -204,6 +203,7 @@
 
     Client.init();
 })();
+
 
 
 
