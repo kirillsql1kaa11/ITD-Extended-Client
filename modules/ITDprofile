@@ -1,0 +1,147 @@
+(() => {
+  "use strict";
+
+  const SEL_USERNAME = "p.profile-bio__username";
+  const SEL_BIO = "p.profile-bio__text";
+
+  const toast = (() => {
+    let el, t;
+    return (msg) => {
+      clearTimeout(t);
+      if (!el) {
+        el = document.createElement("div");
+        el.style.cssText = `
+          position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+          background: rgba(0,0,0,.75); color: #fff; padding: 8px 12px;
+          border-radius: 10px; font-size: 13px; z-index: 999999;
+          transition: opacity .15s ease; opacity: 0;
+          pointer-events: none;
+        `;
+        document.documentElement.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = "1";
+      t = setTimeout(() => (el.style.opacity = "0"), 900);
+    };
+  })();
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+  }
+
+  function enableUsernameCopy(root = document) {
+    const el = root.querySelector(SEL_USERNAME);
+    if (!el || el.dataset.itdCopyBind === "1") return;
+
+    el.dataset.itdCopyBind = "1";
+    el.style.cursor = "pointer";
+    el.title = "Нажми, чтобы скопировать ник";
+
+    el.addEventListener("click", async (e) => {
+      // только ЛКМ, без модификаторов
+      if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+      const raw = (el.textContent || "").trim(); // "@l1kaa11"
+      const nick = raw.startsWith("@") ? raw.slice(1) : raw;
+
+      if (!nick) return;
+      await copyText(nick);
+      toast("Ник скопирован");
+    });
+  }
+
+  function linkifyBio(root = document) {
+    const el = root.querySelector(SEL_BIO);
+    if (!el || el.dataset.itdLinkified === "1") return;
+
+    // Если уже есть ссылки — не трогаем (чтобы не ломать повторно)
+    if (el.querySelector("a")) {
+      el.dataset.itdLinkified = "1";
+      return;
+    }
+
+    const text = el.textContent || "";
+    const urlRe = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+
+    if (!urlRe.test(text)) {
+      el.dataset.itdLinkified = "1";
+      return;
+    }
+    urlRe.lastIndex = 0;
+
+    // сохраняем переносы строк как <br>
+    const frag = document.createDocumentFragment();
+    let last = 0;
+
+    const appendTextWithBreaks = (str) => {
+      const parts = str.split(/\r?\n/);
+      parts.forEach((p, i) => {
+        if (p) frag.appendChild(document.createTextNode(p));
+        if (i !== parts.length - 1) frag.appendChild(document.createElement("br"));
+      });
+    };
+
+    let m;
+    while ((m = urlRe.exec(text)) !== null) {
+      const start = m.index;
+      const raw = m[0];
+      const end = start + raw.length;
+
+      if (start > last) appendTextWithBreaks(text.slice(last, start));
+
+      const a = document.createElement("a");
+      a.href = raw.startsWith("http") ? raw : `https://${raw}`;
+      a.textContent = raw;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.style.textDecoration = "underline";
+
+      frag.appendChild(a);
+      last = end;
+    }
+    if (last < text.length) appendTextWithBreaks(text.slice(last));
+
+    el.textContent = "";
+    el.appendChild(frag);
+
+    el.dataset.itdLinkified = "1";
+  }
+
+  function run() {
+    enableUsernameCopy();
+    linkifyBio();
+  }
+
+  let timer = null;
+  const schedule = () => {
+    clearTimeout(timer);
+    timer = setTimeout(run, 200);
+  };
+  const mo = new MutationObserver(schedule);
+  mo.observe(document.documentElement, { childList: true, subtree: true });
+
+  const fire = () => window.dispatchEvent(new Event("itd:navigation"));
+  ["pushState", "replaceState"].forEach((m) => {
+    const orig = history[m];
+    history[m] = function (...args) {
+      const r = orig.apply(this, args);
+      fire();
+      return r;
+    };
+  });
+  window.addEventListener("popstate", fire);
+  window.addEventListener("itd:navigation", schedule);
+
+  run();
+})();
