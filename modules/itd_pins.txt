@@ -1,0 +1,527 @@
+(() => {
+  "use strict";
+
+  const LS_KEY = "itd_pinned_profiles_v1";
+  const FETCH_INTERVAL = 60_000; // обновление статусов раз в минуту
+  const PANEL_ID = "itd-pins-panel";
+  const BTN_ID = "itd-pins-sidebar-btn";
+  const PIN_BTN_CLASS = "itd-pin-btn";
+
+  const SEL = {
+    sidebarNav: ".sidebar-nav",
+    username: "p.profile-bio__username", // "@l1kaa11"
+  };
+
+  function loadStore() {
+    try {
+      return JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
+  function saveStore(store) {
+    localStorage.setItem(LS_KEY, JSON.stringify(store));
+  }
+
+  // store format:
+  // {
+  //   "l1kaa11": { note:"dev", pinnedAt: ts, lastVisitedAt: ts, visits: 3, cache:{ online:true, lastSeen:null, updatedAt: ts } }
+  // }
+
+  const now = () => Date.now();
+
+  function getUsernameFromPath() {
+    const p = location.pathname.replace(/^\/+|\/+$/g, "");
+    if (!p || p.includes("/")) return null;
+    if (!/^[a-zA-Z0-9_]+$/.test(p)) return null;
+    return p;
+  }
+
+  async function getNewToken() {
+    try {
+      const res = await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.accessToken || data.token || null;
+    } catch {
+      return null;
+    }
+  }
+
+  async function fetchUser(username, token) {
+    const res = await fetch(`/api/users/${username}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        accept: "application/json, */*",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) throw new Error(`api users ${username} => ${res.status}`);
+    return res.json();
+  }
+
+  function isPinned(store, username) {
+    return !!store[username];
+  }
+
+  function setPinned(username, pinned) {
+    const store = loadStore();
+    if (pinned) {
+      if (!store[username]) {
+        store[username] = {
+          note: "",
+          pinnedAt: now(),
+          lastVisitedAt: 0,
+          visits: 0,
+          cache: { online: null, lastSeen: null, updatedAt: 0 },
+        };
+      }
+    } else {
+      delete store[username];
+    }
+    saveStore(store);
+    renderAll(); 
+  }
+
+  function touchVisit(username) {
+    const store = loadStore();
+    if (!store[username]) return;
+    store[username].lastVisitedAt = now();
+    store[username].visits = (store[username].visits || 0) + 1;
+    saveStore(store);
+  }
+
+  function setNote(username, note) {
+    const store = loadStore();
+    if (!store[username]) return;
+    store[username].note = note || "";
+    saveStore(store);
+    renderAll();
+  }
+
+  function ensureStyles() {
+    if (document.getElementById("itd-pins-style")) return;
+    const st = document.createElement("style");
+    st.id = "itd-pins-style";
+    st.textContent = `
+      #${PANEL_ID}{
+        position: fixed;
+        left: 76px;
+        top: 90px;
+        width: 320px;
+        max-height: 70vh;
+        overflow: auto;
+        background: rgba(10,10,12,.95);
+        border: 1px solid rgba(255,255,255,.08);
+        box-shadow: 0 18px 80px rgba(0,0,0,.55);
+        border-radius: 16px;
+        z-index: 999999;
+        padding: 12px;
+        display: none;
+        color: #fff;
+        backdrop-filter: blur(8px);
+      }
+      #${PANEL_ID}.open{ display:block; }
+      #${PANEL_ID} .hdr{
+        display:flex; align-items:center; justify-content:space-between;
+        padding: 6px 6px 10px 6px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        margin-bottom: 10px;
+      }
+      #${PANEL_ID} .hdr .t{ font-weight:700; font-size:13px; letter-spacing:.4px; text-transform:uppercase; opacity:.9; }
+      #${PANEL_ID} .hdr .x{ cursor:pointer; opacity:.7; font-size:18px; padding:2px 8px; border-radius:10px; }
+      #${PANEL_ID} .hdr .x:hover{ background: rgba(255,255,255,.06); opacity:1; }
+      #${PANEL_ID} .item{
+        display:flex; gap:10px; align-items:flex-start;
+        padding: 10px 10px;
+        border-radius: 14px;
+        cursor: pointer;
+      }
+      #${PANEL_ID} .item:hover{ background: rgba(255,255,255,.06); }
+      #${PANEL_ID} .dot{
+        width:10px; height:10px; border-radius:999px; margin-top:4px;
+        background: rgba(255,255,255,.25);
+        flex: 0 0 auto;
+      }
+      #${PANEL_ID} .dot.online{ background: #35d07f; }
+      #${PANEL_ID} .dot.recent{ background: #ffd25e; }
+      #${PANEL_ID} .dot.offline{ background: rgba(255,255,255,.22); }
+      #${PANEL_ID} .main{ flex:1; min-width:0; }
+      #${PANEL_ID} .u{ font-weight:700; font-size:14px; line-height:1.1; }
+      #${PANEL_ID} .meta{ font-size:11px; opacity:.72; margin-top:3px; line-height:1.25; white-space:pre-wrap; overflow:hidden; }
+      #${PANEL_ID} .row{
+        display:flex; gap:8px; align-items:center; justify-content:space-between;
+      }
+      #${PANEL_ID} .actions{
+        display:flex; gap:6px; align-items:center; opacity:.8;
+      }
+      #${PANEL_ID} .iconbtn{
+        border:none; background: rgba(255,255,255,.06); color:#fff;
+        border-radius: 10px; padding: 4px 7px; cursor:pointer; font-size:12px;
+      }
+      #${PANEL_ID} .iconbtn:hover{ background: rgba(255,255,255,.1); }
+      #${PANEL_ID} .empty{
+        padding: 14px 10px;
+        opacity:.7;
+        font-size: 13px;
+        text-align:center;
+      }
+      .${PIN_BTN_CLASS}{
+        margin-left: 8px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width: 22px;
+        height: 22px;
+        border-radius: 8px;
+        border: 1px solid rgba(0,0,0,.08);
+        background: rgba(255,255,255,.08);
+        cursor:pointer;
+        user-select:none;
+      }
+      .${PIN_BTN_CLASS}:hover{
+        background: rgba(255,255,255,.14);
+      }
+      .${PIN_BTN_CLASS}.on{
+        background: rgba(0,122,255,.18);
+        border-color: rgba(0,122,255,.35);
+      }
+    `;
+    document.documentElement.appendChild(st);
+  }
+
+  function ensureSidebarButton() {
+    const nav = document.querySelector(SEL.sidebarNav);
+    if (!nav) return;
+
+    if (document.getElementById(BTN_ID)) return;
+
+    const a = document.createElement("a");
+    a.id = BTN_ID;
+    a.className = "sidebar-nav-item svelte-13vg9xt";
+    a.style.cursor = "pointer";
+    a.title = "Избранные профили";
+
+    a.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" width="24" height="24">
+        <path fill="currentColor" d="M12 2l2.76 6.64 7.17.61-5.44 4.71 1.64 7.04L12 17.9 5.87 21l1.64-7.04L2.07 9.25l7.17-.61L12 2z"/>
+      </svg>
+    `;
+
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      togglePanel();
+    });
+
+    nav.appendChild(a);
+  }
+
+  function ensurePanel() {
+    if (document.getElementById(PANEL_ID)) return;
+
+    const panel = document.createElement("div");
+    panel.id = PANEL_ID;
+    panel.innerHTML = `
+      <div class="hdr">
+        <div class="t">Избранные</div>
+        <div class="x" data-x="1">✕</div>
+      </div>
+      <div class="body"></div>
+    `;
+
+    panel.addEventListener("click", (e) => {
+      const x = e.target?.closest?.('[data-x="1"]');
+      if (x) closePanel();
+    });
+
+    document.documentElement.appendChild(panel);
+
+    document.addEventListener("mousedown", (e) => {
+      const p = document.getElementById(PANEL_ID);
+      if (!p || !p.classList.contains("open")) return;
+      const btn = document.getElementById(BTN_ID);
+      if (p.contains(e.target) || btn?.contains(e.target)) return;
+      closePanel();
+    });
+  }
+
+  function openPanel() {
+    const p = document.getElementById(PANEL_ID);
+    if (!p) return;
+    p.classList.add("open");
+    renderPanel();
+  }
+  function closePanel() {
+    const p = document.getElementById(PANEL_ID);
+    if (!p) return;
+    p.classList.remove("open");
+  }
+  function togglePanel() {
+    const p = document.getElementById(PANEL_ID);
+    if (!p) return;
+    p.classList.contains("open") ? closePanel() : openPanel();
+  }
+
+  function statusClassFromCache(cache) {
+    // online -> green
+    if (cache?.online === true) return "online";
+
+    // if lastSeen exists and updated recently -> yellow "recent"
+    // (в твоих данных lastSeen бывает null, но на всякий)
+    if (cache?.lastSeen) return "recent";
+
+    if (cache?.online === false) return "offline";
+    return "offline";
+  }
+
+  function sortPinnedEntries(store) {
+    const entries = Object.entries(store);
+
+
+    return entries.sort((a, b) => {
+      const A = a[1], B = b[1];
+      const ao = A?.cache?.online === true ? 1 : 0;
+      const bo = B?.cache?.online === true ? 1 : 0;
+      if (bo !== ao) return bo - ao;
+
+      const alv = A?.lastVisitedAt || 0;
+      const blv = B?.lastVisitedAt || 0;
+      if (blv !== alv) return blv - alv;
+
+      const av = A?.visits || 0;
+      const bv = B?.visits || 0;
+      if (bv !== av) return bv - av;
+
+      const ap = A?.pinnedAt || 0;
+      const bp = B?.pinnedAt || 0;
+      return bp - ap;
+    });
+  }
+
+  function renderPanel() {
+    const panel = document.getElementById(PANEL_ID);
+    if (!panel) return;
+
+    const body = panel.querySelector(".body");
+    if (!body) return;
+
+    const store = loadStore();
+    const items = sortPinnedEntries(store);
+
+    if (!items.length) {
+      body.innerHTML = `<div class="empty">Пока пусто. Открой профиль и нажми на 📌 рядом с ником.</div>`;
+      return;
+    }
+
+    body.innerHTML = items
+      .map(([u, data]) => {
+        const cls = statusClassFromCache(data.cache);
+        const note = (data.note || "").trim();
+        const visits = data.visits || 0;
+
+        return `
+          <div class="item" data-u="${u}">
+            <div class="dot ${cls}"></div>
+            <div class="main">
+              <div class="row">
+                <div class="u">@${u}</div>
+                <div class="actions">
+                  <button class="iconbtn" data-act="note" title="Заметка">✎</button>
+                  <button class="iconbtn" data-act="copy" title="Копировать ник">⧉</button>
+                  <button class="iconbtn" data-act="del" title="Убрать">✕</button>
+                </div>
+              </div>
+              <div class="meta">${note ? note.replace(/</g, "&lt;") + "\n" : ""}посещений: ${visits}</div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    body.querySelectorAll(".item").forEach((el) => {
+      const u = el.getAttribute("data-u");
+
+      el.addEventListener("click", (e) => {
+        const act = e.target?.closest?.("[data-act]")?.getAttribute("data-act");
+        if (act) return; // actions handled below
+        // goto profile
+        location.href = `/${u}`;
+      });
+
+      el.querySelectorAll("[data-act]").forEach((btn) => {
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const act = btn.getAttribute("data-act");
+          if (act === "del") {
+            if (confirm(`Убрать @${u} из избранного?`)) setPinned(u, false);
+          }
+          if (act === "note") {
+            const storeNow = loadStore();
+            const cur = storeNow[u]?.note || "";
+            const next = prompt(`Заметка для @${u}:`, cur);
+            if (next !== null) setNote(u, next);
+          }
+          if (act === "copy") {
+            try {
+              await navigator.clipboard.writeText(u);
+            } catch {
+              const ta = document.createElement("textarea");
+              ta.value = u;
+              ta.style.position = "fixed";
+              ta.style.left = "-9999px";
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              ta.remove();
+            }
+          }
+        });
+      });
+
+      el.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        const choice = prompt(`@${u}\n1 — заметка\n2 — убрать из избранного\n(отмена — ничего)`);
+        if (choice === "1") {
+          const storeNow = loadStore();
+          const cur = storeNow[u]?.note || "";
+          const next = prompt(`Заметка для @${u}:`, cur);
+          if (next !== null) setNote(u, next);
+        } else if (choice === "2") {
+          setPinned(u, false);
+        }
+      });
+    });
+  }
+
+  function ensurePinButtonInProfile() {
+    const u = getUsernameFromPath();
+    if (!u) return;
+
+    const nameEl = document.querySelector(SEL.username);
+    if (!nameEl) return;
+
+    if (nameEl.querySelector(`.${PIN_BTN_CLASS}`)) return;
+
+    const store = loadStore();
+    const pinned = isPinned(store, u);
+
+    const btn = document.createElement("span");
+    btn.className = `${PIN_BTN_CLASS} ${pinned ? "on" : ""}`;
+    btn.textContent = "📌";
+    btn.title = pinned ? "Убрать из избранного" : "Добавить в избранное";
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const curStore = loadStore();
+      const isNowPinned = isPinned(curStore, u);
+      setPinned(u, !isNowPinned);
+
+      const newPinned = !isNowPinned;
+      btn.classList.toggle("on", newPinned);
+      btn.title = newPinned ? "Убрать из избранного" : "Добавить в избранное";
+    });
+
+    nameEl.appendChild(btn);
+  }
+
+  let lastStatusFetchAt = 0;
+  let statusInflight = false;
+  async function updateStatusesIfNeeded(force = false) {
+    const t = now();
+    if (!force && t - lastStatusFetchAt < FETCH_INTERVAL) return;
+    if (statusInflight) return;
+
+    const store = loadStore();
+    const users = Object.keys(store);
+    if (!users.length) return;
+
+    statusInflight = true;
+    try {
+      let token = await getNewToken();
+      if (!token) return;
+
+      for (const u of users) {
+        try {
+          const data = await fetchUser(u, token);
+          const online = typeof data?.online === "boolean" ? data.online : null;
+          const lastSeen = data?.lastSeen ?? null;
+
+          const st = loadStore(); // на случай изменения во время цикла
+          if (!st[u]) continue;
+          st[u].cache = {
+            online,
+            lastSeen,
+            updatedAt: now(),
+          };
+          saveStore(st);
+        } catch {
+          // игнорим отдельные ошибки
+        }
+      }
+
+      lastStatusFetchAt = now();
+
+      const panel = document.getElementById(PANEL_ID);
+      if (panel?.classList.contains("open")) renderPanel();
+    } finally {
+      statusInflight = false;
+    }
+  }
+
+  function renderAll() {
+    ensureStyles();
+    ensureSidebarButton();
+    ensurePanel();
+    ensurePinButtonInProfile();
+    updateStatusesIfNeeded(false);
+  }
+
+  function hookHistory() {
+    const fire = () => window.dispatchEvent(new Event("itd:navigation"));
+    ["pushState", "replaceState"].forEach((m) => {
+      const orig = history[m];
+      history[m] = function (...args) {
+        const r = orig.apply(this, args);
+        fire();
+        return r;
+      };
+    });
+    window.addEventListener("popstate", fire);
+  }
+
+  let debounce = null;
+  const schedule = () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      // mark visits if current profile is pinned
+      const u = getUsernameFromPath();
+      const store = loadStore();
+      if (u && store[u]) touchVisit(u);
+
+      renderAll();
+    }, 250);
+  };
+
+  function init() {
+    hookHistory();
+
+    window.addEventListener("itd:navigation", schedule);
+
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+
+    setInterval(() => updateStatusesIfNeeded(false), FETCH_INTERVAL);
+
+    schedule();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  } else {
+    init();
+  }
+})();
